@@ -1,10 +1,42 @@
 package com.radlance.numberstesttask.numbers.presentation
 
+import com.radlance.numberstesttask.common.MainDispatcherRule
+import com.radlance.numberstesttask.numbers.domain.NumberFact
+import com.radlance.numberstesttask.numbers.domain.NumbersInteractor
+import com.radlance.numberstesttask.numbers.domain.NumbersResult
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 
-class NumbersViewModelTest {
+@OptIn(ExperimentalCoroutinesApi::class)
+class NumbersViewModelTest : BaseTest() {
+    @get:Rule
+    val mainDispatcherRule = MainDispatcherRule()
 
+    private lateinit var manageResources: TestManageResources
+    private lateinit var communications: TestNumbersCommunications
+    private lateinit var interactor: TestNumbersInteractor
+
+    private lateinit var viewModel: NumbersViewModel
+
+    @Before
+    fun setup() {
+        manageResources = TestManageResources()
+        communications = TestNumbersCommunications()
+        interactor = TestNumbersInteractor()
+        val mapper = NumbersResultMapper(communications, NumberUiMapper())
+
+        viewModel = NumbersViewModel(
+            manageResources = manageResources,
+            communications = communications,
+            interactor = interactor,
+            handleResult = HandleNumbersRequest.Base(communications, mapper)
+        )
+    }
     /**
      * Initial test
      * At start fetch data and show it
@@ -12,33 +44,33 @@ class NumbersViewModelTest {
      * then re-init and check the result
      */
     @Test
-    fun `test init and re-init`() {
-        val communications = TestNumbersCommunications()
-        val interactor = TestNumbersInteractor()
-        // 1. initialize
-        val viewModel = NumbersViewModel(communications, interactor)
-        interactor.changeExpectedResult(NumbersResult.Success())
+    fun `test init and re-init`() = runTest {
+        interactor.changeExpectedResult(NumbersResult.Success(emptyList()))
         // 2. action
         viewModel.init(isFirstRun = true)
         // 3. check
         assertEquals(1, communications.progressCalledList.size)
         assertEquals(true, communications.progressCalledList[0])
 
+        advanceUntilIdle()
+
         assertEquals(2, communications.progressCalledList.size)
         assertEquals(false, communications.progressCalledList[1])
 
         assertEquals(1, communications.stateCalledList.size)
-        assertEquals(UiState.Succcess(emptyList<NumberFact>()), communications.stateCalledList[0])
+        assertEquals(UiState.Success, communications.stateCalledList[0])
 
         assertEquals(0, communications.numbersList.size)
         assertEquals(0, communications.timesShowList)
 
         // 4. get some data
         interactor.changeExpectedResult(NumbersResult.Failure("no internet connection"))
-        viewModel.fetchRandomNumberData()
+        viewModel.fetchRandomNumberFact()
 
         assertEquals(3, communications.progressCalledList.size)
         assertEquals(true, communications.progressCalledList[2])
+
+        advanceUntilIdle()
 
         assertEquals(1, interactor.fetchAboutRandomNumberCalledList.size)
 
@@ -47,12 +79,12 @@ class NumbersViewModelTest {
 
         assertEquals(2, communications.stateCalledList.size)
         assertEquals(UiState.Error("no internet connection"), communications.stateCalledList[1])
-        assertEquals(1, communications.timesShowList)
+        assertEquals(0, communications.timesShowList)
 
         viewModel.init(isFirstRun = false)
         assertEquals(4, communications.progressCalledList.size)
         assertEquals(2, communications.stateCalledList.size)
-        assertEquals(1, communications.timesShowList)
+        assertEquals(0, communications.timesShowList)
     }
 
     /**
@@ -60,13 +92,10 @@ class NumbersViewModelTest {
      */
     @Test
     fun `fact about empty number`() {
-        val communications = TestNumbersCommunications()
-        val interactor = TestNumbersInteractor()
+        manageResources.makeExpectedAnswer("entered number is empty")
+        viewModel.fetchNumberFact("")
 
-        val viewModel = NumbersViewModel(communications, interactor)
-
-        viewModel.fetchFact("")
-
+        assertEquals(0, interactor.fetchAboutNumberCalledList.size)
         assertEquals(0, communications.progressCalledList.size)
 
         assertEquals(UiState.Error("entered number is empty"), communications.stateCalledList[0])
@@ -80,62 +109,53 @@ class NumbersViewModelTest {
      * Try to get information about some number
      */
     @Test
-    fun `fact about some number`() {
-        val communications = TestNumbersCommunications()
-        val interactor = TestNumbersInteractor()
-
-        val viewModel = NumbersViewModel(communications, interactor)
-
+    fun `fact about some number`() = runTest {
         interactor.changeExpectedResult(
             NumbersResult.Success(
                 listOf(
                     NumberFact(
                         "45",
-                        "random fact about 45"
+                        "fact about 45"
                     )
                 )
             )
         )
-        viewModel.fetchFact("45")
+
+        viewModel.fetchNumberFact("45")
+
 
         assertEquals(1, communications.progressCalledList.size)
         assertEquals(true, communications.progressCalledList[0])
 
-        assertEquals(1, interactor.fetchAboutNumberCalledList.size)
-        assertEquals(NumberFact("45", "fact about 45"), interactor.fetchAboutNumberCalledList[0])
+        advanceUntilIdle()
 
+        assertEquals(1, interactor.fetchAboutNumberCalledList.size)
+        assertEquals(
+            NumbersResult.Success(listOf(NumberFact("45", "fact about 45"))),
+            interactor.fetchAboutNumberCalledList[0]
+        )
         assertEquals(2, communications.progressCalledList.size)
         assertEquals(false, communications.progressCalledList[1])
 
         assertEquals(1, communications.stateCalledList.size)
-        assertEquals(UiState.Success(), communications.stateCalledList[0])
+        assertEquals(UiState.Success, communications.stateCalledList[0])
 
         assertEquals(1, communications.timesShowList)
         assertEquals(NumberUi("45", "fact about 45"), communications.numbersList[0])
     }
 
-    private class TestNumbersCommunications : NumbersCommunications {
-        var progressCalledList = mutableListOf<Boolean>()
-        var stateCalledList = mutableListOf<UiState>()
-        var timesShowList = 0
-        val numbersList = mutableListOf<NumberUi>()
+    private class TestManageResources : ManageResources {
+        private var string = ""
 
-        override fun showProgress(show: Boolean) {
-            progressCalledList.add(show)
+        fun makeExpectedAnswer(expected: String) {
+            string = expected
         }
 
-        override fun showState(state: UiState) {
-            stateCalledList.add(state)
-        }
-
-        override fun showList(list: List<NumberUi>) {
-            timesShowList++
-            numbersList.addAll(list)
-        }
+        override fun string(id: Int): String = string
     }
 
     private class TestNumbersInteractor : NumbersInteractor {
-        private var result: NumbersResult = NumbersResult.Success()
+        private var result: NumbersResult = NumbersResult.Success(emptyList())
 
         val initCalledList = mutableListOf<NumbersResult>()
         val fetchAboutNumberCalledList = mutableListOf<NumbersResult>()
@@ -150,12 +170,12 @@ class NumbersViewModelTest {
             return result
         }
 
-        override suspend fun factAboutNumber(number: String): NumberResult {
+        override suspend fun factAboutNumber(number: String): NumbersResult {
             fetchAboutNumberCalledList.add(result)
             return result
         }
 
-        override suspend fun factAboutRandomNumber(): NumberResult {
+        override suspend fun factAboutRandomNumber(): NumbersResult {
             fetchAboutRandomNumberCalledList.add(result)
             return result
         }
