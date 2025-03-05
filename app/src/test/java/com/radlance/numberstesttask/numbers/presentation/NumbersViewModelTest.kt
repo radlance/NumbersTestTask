@@ -45,7 +45,7 @@ class NumbersViewModelTest : BaseTest() {
      */
     @Test
     fun `test init and re-init`() = runTest {
-        interactor.changeExpectedResult(NumbersResult.Success(emptyList()))
+        interactor.changeExpectedResult(NumbersResult.Success())
         // 2. action
         viewModel.init(isFirstRun = true)
         // 3. check
@@ -155,7 +155,7 @@ class NumbersViewModelTest : BaseTest() {
     }
 
     private class TestNumbersInteractor : NumbersInteractor {
-        private var result: NumbersResult = NumbersResult.Success(emptyList())
+        private var result: NumbersResult = NumbersResult.Success()
 
         val initCalledList = mutableListOf<NumbersResult>()
         val fetchAboutNumberCalledList = mutableListOf<NumbersResult>()

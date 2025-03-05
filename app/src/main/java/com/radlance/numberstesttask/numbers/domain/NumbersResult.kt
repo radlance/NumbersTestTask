@@ -8,7 +8,7 @@ interface NumbersResult {
         fun mapError(message: String): T
     }
 
-    data class Success(private val list: List<NumberFact>) : NumbersResult {
+    data class Success(private val list: List<NumberFact> = emptyList()) : NumbersResult {
         override fun <T : Any> map(mapper: Mapper<T>): T {
             return mapper.mapSuccess(list)
         }
