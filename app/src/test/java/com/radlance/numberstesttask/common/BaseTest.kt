@@ -1,7 +1,11 @@
-package com.radlance.numberstesttask.numbers.presentation
+package com.radlance.numberstesttask.common
 
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
+import com.radlance.numberstesttask.numbers.presentation.ManageResources
+import com.radlance.numberstesttask.numbers.presentation.NumberUi
+import com.radlance.numberstesttask.numbers.presentation.NumbersCommunications
+import com.radlance.numberstesttask.numbers.presentation.UiState
 
 abstract class BaseTest {
     protected class TestNumbersCommunications : NumbersCommunications {
@@ -28,5 +32,15 @@ abstract class BaseTest {
         override fun observeNumbersState(owner: LifecycleOwner, observer: Observer<UiState>) = Unit
 
         override fun observeNumbersList(owner: LifecycleOwner, observer: Observer<List<NumberUi>>) = Unit
+    }
+
+    protected class TestManageResources : ManageResources {
+        private var string = ""
+
+        fun makeExpectedAnswer(expected: String) {
+            string = expected
+        }
+
+        override fun string(id: Int): String = string
     }
 }

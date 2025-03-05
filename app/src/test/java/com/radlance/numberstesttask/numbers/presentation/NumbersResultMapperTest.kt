@@ -1,5 +1,6 @@
 package com.radlance.numberstesttask.numbers.presentation
 
+import com.radlance.numberstesttask.common.BaseTest
 import com.radlance.numberstesttask.numbers.domain.NumberFact
 import org.junit.Assert.assertEquals
 import org.junit.Test

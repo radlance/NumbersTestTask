@@ -1,5 +1,6 @@
 package com.radlance.numberstesttask.numbers.presentation
 
+import com.radlance.numberstesttask.common.BaseTest
 import com.radlance.numberstesttask.common.MainDispatcherRule
 import com.radlance.numberstesttask.numbers.domain.NumberFact
 import com.radlance.numberstesttask.numbers.domain.NumbersInteractor
@@ -142,16 +143,6 @@ class NumbersViewModelTest : BaseTest() {
 
         assertEquals(1, communications.timesShowList)
         assertEquals(NumberUi("45", "fact about 45"), communications.numbersList[0])
-    }
-
-    private class TestManageResources : ManageResources {
-        private var string = ""
-
-        fun makeExpectedAnswer(expected: String) {
-            string = expected
-        }
-
-        override fun string(id: Int): String = string
     }
 
     private class TestNumbersInteractor : NumbersInteractor {
