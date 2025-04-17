@@ -11,7 +11,8 @@ class NumbersViewModel(
     private val handleResult: HandleNumbersRequest,
     private val manageResources: ManageResources,
     private val communications: NumbersCommunications,
-    private val interactor: NumbersInteractor
+    private val interactor: NumbersInteractor,
+    private val dispatcher: CoroutineDispatchers
 ) : ObserveNumbers, FetchNumbers, ViewModel() {
 
     override fun observeProgress(owner: LifecycleOwner, observer: Observer<Boolean>) {
@@ -28,19 +29,19 @@ class NumbersViewModel(
 
     override fun init(isFirstRun: Boolean) {
         if (isFirstRun) {
-            handleResult.handle(viewModelScope) { interactor.init() }
+            handleResult.handle(viewModelScope, dispatcher) { interactor.init() }
         }
     }
 
     override fun fetchRandomNumberFact() {
-        handleResult.handle(viewModelScope) { interactor.factAboutRandomNumber() }
+        handleResult.handle(viewModelScope, dispatcher) { interactor.factAboutRandomNumber() }
     }
 
     override fun fetchNumberFact(number: String) {
         if (number.isEmpty()) {
             communications.showState(UiState.Error(manageResources.string(R.string.empty_number_error_message)))
         } else {
-            handleResult.handle(viewModelScope) { interactor.factAboutNumber(number) }
+            handleResult.handle(viewModelScope, dispatcher) { interactor.factAboutNumber(number) }
         }
     }
 }

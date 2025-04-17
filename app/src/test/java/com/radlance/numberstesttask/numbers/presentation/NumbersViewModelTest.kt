@@ -5,6 +5,8 @@ import com.radlance.numberstesttask.common.MainDispatcherRule
 import com.radlance.numberstesttask.numbers.domain.NumberFact
 import com.radlance.numberstesttask.numbers.domain.NumbersInteractor
 import com.radlance.numberstesttask.numbers.domain.NumbersResult
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -35,7 +37,8 @@ class NumbersViewModelTest : BaseTest() {
             manageResources = manageResources,
             communications = communications,
             interactor = interactor,
-            handleResult = HandleNumbersRequest.Base(communications, mapper)
+            handleResult = HandleNumbersRequest.Base(communications, mapper),
+            dispatcher = TestDispatchers()
         )
     }
     /**
@@ -170,5 +173,12 @@ class NumbersViewModelTest : BaseTest() {
             fetchAboutRandomNumberCalledList.add(result)
             return result
         }
+    }
+
+    private class TestDispatchers : CoroutineDispatchers {
+
+        override fun main(): CoroutineDispatcher = Dispatchers.Main
+
+        override fun io(): CoroutineDispatcher = Dispatchers.Main
     }
 }

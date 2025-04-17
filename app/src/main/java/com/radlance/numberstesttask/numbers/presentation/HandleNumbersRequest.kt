@@ -3,10 +3,12 @@ package com.radlance.numberstesttask.numbers.presentation
 import com.radlance.numberstesttask.numbers.domain.NumbersResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 interface HandleNumbersRequest {
     fun handle(
         coroutineScope: CoroutineScope,
+        dispatchers: CoroutineDispatchers,
         action: suspend () -> NumbersResult
     )
 
@@ -14,12 +16,19 @@ interface HandleNumbersRequest {
         private val communications: NumbersCommunications,
         private val mapper: NumbersResult.Mapper<Unit>
     ) : HandleNumbersRequest {
-        override fun handle(coroutineScope: CoroutineScope, action: suspend () -> NumbersResult) {
+        override fun handle(
+            coroutineScope: CoroutineScope,
+            dispatchers: CoroutineDispatchers,
+            action: suspend () -> NumbersResult
+        ) {
             communications.showProgress(true)
-            coroutineScope.launch {
+            coroutineScope.launch(dispatchers.io()) {
                 val result = action.invoke()
-                communications.showProgress(false)
-                result.map(mapper)
+
+                withContext(dispatchers.main()) {
+                    communications.showProgress(false)
+                    result.map(mapper)
+                }
             }
         }
     }
