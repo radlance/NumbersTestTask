@@ -33,10 +33,17 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
+
+    buildFeatures {
+        buildConfig = true
+    }
 }
 
 dependencies {
 
+    implementation(libs.logging.interceptor)
+    implementation(libs.converter.scalars)
+    implementation(libs.retrofit)
     implementation(libs.androidx.lifecycle.viewmodel)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
