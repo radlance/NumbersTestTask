@@ -201,7 +201,7 @@ class BaseNumbersRepositoryTest {
             return data.first()
         }
 
-        override suspend fun saveNumberFact(numberData: NumberData) {
+        override suspend fun saveNumber(numberData: NumberData) {
             data.add(numberData)
             saveNumberFactCalledCount++
         }
