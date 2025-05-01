@@ -1,5 +1,7 @@
 package com.radlance.numberstesttask.numbers.data
 
+import com.radlance.numberstesttask.numbers.data.cache.NumbersCacheDataSource
+import com.radlance.numberstesttask.numbers.data.cloud.NumbersCloudDataSource
 import com.radlance.numberstesttask.numbers.domain.NumberFact
 import com.radlance.numberstesttask.numbers.domain.NumbersRepository
 

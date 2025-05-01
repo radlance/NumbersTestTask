@@ -1,4 +1,7 @@
-package com.radlance.numberstesttask.numbers.data
+package com.radlance.numberstesttask.numbers.data.cache
+
+import com.radlance.numberstesttask.numbers.data.FetchNumber
+import com.radlance.numberstesttask.numbers.data.NumberData
 
 interface NumbersCacheDataSource : FetchNumber {
 

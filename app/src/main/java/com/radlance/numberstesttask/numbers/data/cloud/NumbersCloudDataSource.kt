@@ -1,4 +1,7 @@
-package com.radlance.numberstesttask.numbers.data
+package com.radlance.numberstesttask.numbers.data.cloud
+
+import com.radlance.numberstesttask.numbers.data.FetchNumber
+import com.radlance.numberstesttask.numbers.data.NumberData
 
 interface NumbersCloudDataSource : FetchNumber {
 
