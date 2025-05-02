@@ -16,6 +16,6 @@ class NumbersResultMapper(
     }
 
     override fun mapError(message: String) {
-        communications.showState(UiState.Error(message))
+        communications.showState(UiState.ShowError(message))
     }
 }

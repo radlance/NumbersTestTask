@@ -37,6 +37,6 @@ class NumbersResultMapperTest : BaseTest() {
         val mapper = NumbersResultMapper(communications, NumberUiMapper())
 
         mapper.mapError(message = "no connection")
-        assertEquals(UiState.Error("no connection"), communications.stateCalledList[0])
+        assertEquals(UiState.ShowError("no connection"), communications.stateCalledList[0])
     }
 }

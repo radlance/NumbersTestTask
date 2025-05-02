@@ -1,5 +1,6 @@
 package com.radlance.numberstesttask.numbers.presentation
 
+import android.view.View
 import com.radlance.numberstesttask.common.BaseTest
 import com.radlance.numberstesttask.common.MainDispatcherRule
 import com.radlance.numberstesttask.numbers.domain.NumberFact
@@ -11,6 +12,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -54,12 +56,12 @@ class NumbersViewModelTest : BaseTest() {
         viewModel.init(isFirstRun = true)
         // 3. check
         assertEquals(1, communications.progressCalledList.size)
-        assertEquals(true, communications.progressCalledList[0])
+        assertEquals(View.VISIBLE, communications.progressCalledList[0])
 
         advanceUntilIdle()
 
         assertEquals(2, communications.progressCalledList.size)
-        assertEquals(false, communications.progressCalledList[1])
+        assertEquals(View.GONE, communications.progressCalledList[1])
 
         assertEquals(1, communications.stateCalledList.size)
         assertEquals(UiState.Success, communications.stateCalledList[0])
@@ -72,17 +74,17 @@ class NumbersViewModelTest : BaseTest() {
         viewModel.fetchRandomNumberFact()
 
         assertEquals(3, communications.progressCalledList.size)
-        assertEquals(true, communications.progressCalledList[2])
+        assertEquals(View.VISIBLE, communications.progressCalledList[2])
 
         advanceUntilIdle()
 
         assertEquals(1, interactor.fetchAboutRandomNumberCalledList.size)
 
         assertEquals(4, communications.progressCalledList.size)
-        assertEquals(false, communications.progressCalledList[3])
+        assertEquals(View.GONE, communications.progressCalledList[3])
 
         assertEquals(2, communications.stateCalledList.size)
-        assertEquals(UiState.Error("no internet connection"), communications.stateCalledList[1])
+        assertEquals(UiState.ShowError("no internet connection"), communications.stateCalledList[1])
         assertEquals(0, communications.timesShowList)
 
         viewModel.init(isFirstRun = false)
@@ -102,7 +104,7 @@ class NumbersViewModelTest : BaseTest() {
         assertEquals(0, interactor.fetchAboutNumberCalledList.size)
         assertEquals(0, communications.progressCalledList.size)
 
-        assertEquals(UiState.Error("entered number is empty"), communications.stateCalledList[0])
+        assertEquals(UiState.ShowError("entered number is empty"), communications.stateCalledList[0])
         assertEquals(1, communications.stateCalledList.size)
 
         assertEquals(0, communications.timesShowList)
@@ -129,7 +131,7 @@ class NumbersViewModelTest : BaseTest() {
 
 
         assertEquals(1, communications.progressCalledList.size)
-        assertEquals(true, communications.progressCalledList[0])
+        assertEquals(View.VISIBLE, communications.progressCalledList[0])
 
         advanceUntilIdle()
 
@@ -139,13 +141,20 @@ class NumbersViewModelTest : BaseTest() {
             interactor.fetchAboutNumberCalledList[0]
         )
         assertEquals(2, communications.progressCalledList.size)
-        assertEquals(false, communications.progressCalledList[1])
+        assertEquals(View.GONE, communications.progressCalledList[1])
 
         assertEquals(1, communications.stateCalledList.size)
         assertEquals(UiState.Success, communications.stateCalledList[0])
 
         assertEquals(1, communications.timesShowList)
         assertEquals(NumberUi("45", "fact about 45"), communications.numbersList[0])
+    }
+
+    @Test
+    fun `test clear error`() = runTest {
+        viewModel.clearError()
+        assertEquals(1, communications.stateCalledList.size)
+        assertTrue(communications.stateCalledList[0] is UiState.ClearError)
     }
 
     private class TestNumbersInteractor : NumbersInteractor {

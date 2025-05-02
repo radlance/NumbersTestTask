@@ -1,5 +1,6 @@
 package com.radlance.numberstesttask.numbers.presentation
 
+import android.view.View
 import com.radlance.numberstesttask.numbers.domain.NumbersResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -21,12 +22,12 @@ interface HandleNumbersRequest {
             dispatchers: CoroutineDispatchers,
             action: suspend () -> NumbersResult
         ) {
-            communications.showProgress(true)
+            communications.showProgress(View.VISIBLE)
             coroutineScope.launch(dispatchers.io()) {
                 val result = action.invoke()
 
                 withContext(dispatchers.main()) {
-                    communications.showProgress(false)
+                    communications.showProgress(View.GONE)
                     result.map(mapper)
                 }
             }
