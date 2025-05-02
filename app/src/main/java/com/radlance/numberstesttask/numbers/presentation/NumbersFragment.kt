@@ -14,7 +14,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.radlance.numberstesttask.R
+import com.radlance.numberstesttask.details.presentation.DetailsFragment
 import com.radlance.numberstesttask.main.presentation.ShowFragment
+import com.radlance.numberstesttask.main.sl.ProvideViewModel
 
 class NumbersFragment : Fragment() {
     private var showFragment: ShowFragment = ShowFragment.Empty()
@@ -24,6 +26,14 @@ class NumbersFragment : Fragment() {
     override fun onAttach(context: Context) {
         super.onAttach(context)
         showFragment = context as ShowFragment
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        viewModel = (requireActivity() as ProvideViewModel).provideViewModel(
+            NumbersViewModel::class.java,
+            this
+        )
     }
 
     override fun onCreateView(
@@ -46,7 +56,7 @@ class NumbersFragment : Fragment() {
         val adapter = NumbersAdapter(
             object : ClickListener {
                 override fun click(item: NumberUi) {
-                    // TODO move to next screen showFragment.show(DetailsFragment.newInstance("some information about number hardcoded"))
+                    showFragment.show(DetailsFragment.newInstance(item.map(mapper = DetailsUi)))
                 }
             }
         )

@@ -9,19 +9,15 @@ import kotlinx.coroutines.withContext
 interface HandleNumbersRequest {
     fun handle(
         coroutineScope: CoroutineScope,
-        dispatchers: CoroutineDispatchers,
         action: suspend () -> NumbersResult
     )
 
     class Base(
+        private val dispatchers: CoroutineDispatchers,
         private val communications: NumbersCommunications,
         private val mapper: NumbersResult.Mapper<Unit>
     ) : HandleNumbersRequest {
-        override fun handle(
-            coroutineScope: CoroutineScope,
-            dispatchers: CoroutineDispatchers,
-            action: suspend () -> NumbersResult
-        ) {
+        override fun handle(coroutineScope: CoroutineScope, action: suspend () -> NumbersResult) {
             communications.showProgress(View.VISIBLE)
             coroutineScope.launch(dispatchers.io()) {
                 val result = action.invoke()

@@ -47,7 +47,7 @@ class NumberViewHolder(
     private val subTitle = itemView.findViewById<TextView>(R.id.subTitleTextView)
 
     fun bind(model: NumberUi) {
-        model.map(title, subTitle)
+        model.map(ListItemUi(title, subTitle))
         itemView.setOnClickListener { clickListener.click(model) }
     }
 }

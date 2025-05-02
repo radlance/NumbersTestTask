@@ -35,6 +35,6 @@ interface CloudModule {
 
 
     class Release : Abstract() {
-        override fun level(): HttpLoggingInterceptor.Level = HttpLoggingInterceptor.Level.BODY
+        override fun level(): HttpLoggingInterceptor.Level = HttpLoggingInterceptor.Level.NONE
     }
 }

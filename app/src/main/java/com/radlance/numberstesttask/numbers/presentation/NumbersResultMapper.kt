@@ -5,7 +5,7 @@ import com.radlance.numberstesttask.numbers.domain.NumbersResult
 
 class NumbersResultMapper(
     private val communications: NumbersCommunications,
-    private val numberUiMapper: NumberUiMapper
+    private val numberUiMapper: NumberFact.Mapper<NumberUi>
 ) : NumbersResult.Mapper<Unit> {
     override fun mapSuccess(list: List<NumberFact>) {
         if (list.isNotEmpty()) {

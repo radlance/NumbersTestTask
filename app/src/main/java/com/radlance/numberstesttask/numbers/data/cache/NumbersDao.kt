@@ -8,7 +8,7 @@ import androidx.room.Query
 @Dao
 interface NumbersDao {
 
-    @Query("SELECT * FROM number ORDER BY fact ASC")
+    @Query("SELECT * FROM number ORDER BY date DESC")
     suspend fun allNumbers(): List<NumberCache>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
