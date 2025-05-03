@@ -39,8 +39,11 @@ class NumbersViewModelTest : BaseTest() {
             manageResources = manageResources,
             communications = communications,
             interactor = interactor,
-            handleResult = HandleNumbersRequest.Base(communications, mapper),
-            dispatcher = TestDispatchers()
+            handleResult = HandleNumbersRequest.Base(
+                dispatchers = TestDispatchers(),
+                communications = communications,
+                mapper = mapper
+            ),
         )
     }
     /**
