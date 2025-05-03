@@ -1,6 +1,8 @@
 package com.radlance.numberstesttask
 
+import androidx.test.espresso.Espresso.closeSoftKeyboard
 import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.Espresso.pressBack
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.action.ViewActions.typeText
 import androidx.test.espresso.assertion.ViewAssertions.matches
@@ -22,10 +24,16 @@ class NavigationTest {
     @Test
     fun details_navigation() {
         onView(withId(R.id.inputEditText)).perform(typeText("10"))
+        closeSoftKeyboard()
         onView(withId(R.id.factButton)).perform(click())
         onView(withId(R.id.titleTextView)).check(matches(withText("10")))
         onView(withId(R.id.subTitleTextView)).check(matches(withText("fact about 10")))
         onView(withId(R.id.subTitleTextView)).perform(click())
         onView(withId(R.id.detailsTextView)).check(matches(withText("10\n\nfact about 10")))
+
+        pressBack()
+
+        onView(withId(R.id.titleTextView)).check(matches(withText("10")))
+        onView(withId(R.id.subTitleTextView)).check(matches(withText("fact about 10")))
     }
 }

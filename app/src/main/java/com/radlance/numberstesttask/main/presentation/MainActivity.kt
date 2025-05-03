@@ -15,26 +15,12 @@ class MainActivity : AppCompatActivity(), ShowFragment, ProvideViewModel {
         setContentView(R.layout.activity_main)
 
         if (savedInstanceState == null) {
-            val numbersFragment = NumbersFragment()
-            show(numbersFragment, false)
+            NavigationStrategy.Replace(NumbersFragment()).navigate(supportFragmentManager, R.id.container)
         }
     }
 
     override fun show(fragment: Fragment) {
-        show(fragment, true)
-    }
-
-    private fun show(fragment: Fragment, add: Boolean) {
-        val transaction = supportFragmentManager.beginTransaction()
-        val container = R.id.container
-
-        if (add) {
-            transaction.add(container, fragment).addToBackStack(fragment.javaClass.simpleName)
-        } else {
-            transaction.replace(container, fragment)
-        }
-
-        transaction.commit()
+        NavigationStrategy.Add(fragment).navigate(supportFragmentManager, R.id.container)
     }
 
     override fun <T : ViewModel> provideViewModel(clazz: Class<T>, owner: ViewModelStoreOwner): T {
@@ -43,6 +29,7 @@ class MainActivity : AppCompatActivity(), ShowFragment, ProvideViewModel {
 }
 
 interface ShowFragment {
+
     fun show(fragment: Fragment)
 
     class Empty : ShowFragment {
