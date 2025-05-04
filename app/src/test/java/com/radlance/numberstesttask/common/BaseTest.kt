@@ -2,6 +2,8 @@ package com.radlance.numberstesttask.common
 
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
+import com.radlance.numberstesttask.main.presentation.NavigationCommunication
+import com.radlance.numberstesttask.main.presentation.NavigationStrategy
 import com.radlance.numberstesttask.numbers.presentation.ManageResources
 import com.radlance.numberstesttask.numbers.presentation.NumberUi
 import com.radlance.numberstesttask.numbers.presentation.NumbersCommunications
@@ -42,5 +44,18 @@ abstract class BaseTest {
         }
 
         override fun string(id: Int): String = string
+    }
+
+    protected class TestNavigationCommunication : NavigationCommunication.Mutable {
+
+        lateinit var strategy: NavigationStrategy
+        var count = 0
+
+        override fun observe(owner: LifecycleOwner, observer: Observer<NavigationStrategy>) {}
+
+        override fun map(source: NavigationStrategy) {
+            strategy = source
+            count++
+        }
     }
 }

@@ -3,6 +3,7 @@ package com.radlance.numberstesttask.numbers.presentation
 import android.view.View
 import com.radlance.numberstesttask.common.BaseTest
 import com.radlance.numberstesttask.common.MainDispatcherRule
+import com.radlance.numberstesttask.main.presentation.NavigationStrategy
 import com.radlance.numberstesttask.numbers.domain.NumberFact
 import com.radlance.numberstesttask.numbers.domain.NumbersInteractor
 import com.radlance.numberstesttask.numbers.domain.NumbersResult
@@ -25,6 +26,7 @@ class NumbersViewModelTest : BaseTest() {
     private lateinit var manageResources: TestManageResources
     private lateinit var communications: TestNumbersCommunications
     private lateinit var interactor: TestNumbersInteractor
+    private lateinit var navigation: TestNavigationCommunication
 
     private lateinit var viewModel: NumbersViewModel
 
@@ -33,9 +35,12 @@ class NumbersViewModelTest : BaseTest() {
         manageResources = TestManageResources()
         communications = TestNumbersCommunications()
         interactor = TestNumbersInteractor()
-        val mapper = NumbersResultMapper(communications, NumberUiMapper())
 
-        viewModel = NumbersViewModel(
+        val mapper = NumbersResultMapper(communications, NumberUiMapper())
+        val detailMapper = TestUiMapper()
+        navigation = TestNavigationCommunication()
+
+        viewModel = NumbersViewModel.Base(
             manageResources = manageResources,
             communications = communications,
             interactor = interactor,
@@ -44,6 +49,8 @@ class NumbersViewModelTest : BaseTest() {
                 communications = communications,
                 mapper = mapper
             ),
+            navigationCommunication = navigation,
+            detailMapper = detailMapper
         )
     }
     /**
@@ -167,6 +174,8 @@ class NumbersViewModelTest : BaseTest() {
         val fetchAboutNumberCalledList = mutableListOf<NumbersResult>()
         val fetchAboutRandomNumberCalledList = mutableListOf<NumbersResult>()
 
+        var details = ""
+
         fun changeExpectedResult(newResult: NumbersResult) {
             result = newResult
         }
@@ -185,6 +194,18 @@ class NumbersViewModelTest : BaseTest() {
             fetchAboutRandomNumberCalledList.add(result)
             return result
         }
+
+        override fun saveDetails(details: String) {
+            this.details = details
+        }
+    }
+
+    @Test
+    fun `test navigation details`() {
+        viewModel.showDetails(NumberUi(id = "0", fact = "fact about 0"))
+        assertEquals("0 fact about 0", interactor.details)
+        assertEquals(1, navigation.count)
+        assertTrue(navigation.strategy is NavigationStrategy.Add)
     }
 
     private class TestDispatchers : CoroutineDispatchers {
@@ -192,5 +213,9 @@ class NumbersViewModelTest : BaseTest() {
         override fun main(): CoroutineDispatcher = Dispatchers.Main
 
         override fun io(): CoroutineDispatcher = Dispatchers.Main
+    }
+
+    private class TestUiMapper : NumberUi.Mapper<String> {
+        override fun map(id: String, fact: String): String = "$id $fact"
     }
 }

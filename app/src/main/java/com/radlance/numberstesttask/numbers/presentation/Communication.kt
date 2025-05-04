@@ -3,6 +3,7 @@ package com.radlance.numberstesttask.numbers.presentation
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
+import com.radlance.numberstesttask.main.presentation.SingleLiveEvent
 
 interface Communication {
     interface Observe<T> {
@@ -36,4 +37,8 @@ interface Communication {
             liveData.postValue(source)
         }
     }
+
+    abstract class SingleUi<T> : Ui<T>(SingleLiveEvent())
+
+    abstract class SinglePost<T> : Post<T>(SingleLiveEvent())
 }

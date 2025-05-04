@@ -1,27 +1,17 @@
 package com.radlance.numberstesttask.numbers.presentation
 
-import android.content.Context
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.ProgressBar
-import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.textfield.TextInputEditText
-import com.google.android.material.textfield.TextInputLayout
-import com.radlance.numberstesttask.R
-import com.radlance.numberstesttask.details.presentation.DetailsFragment
-import com.radlance.numberstesttask.main.presentation.ShowFragment
-import com.radlance.numberstesttask.main.sl.ProvideViewModel
+import com.radlance.numberstesttask.databinding.FragmentNumbersBinding
+import com.radlance.numberstesttask.main.presentation.BaseFragment
 
-class NumbersFragment : Fragment() {
-    private var showFragment: ShowFragment = ShowFragment.Empty()
+class NumbersFragment : BaseFragment<FragmentNumbersBinding, NumbersViewModel.Base>() {
 
-    private lateinit var viewModel: NumbersViewModel
     private lateinit var inputEditText: TextInputEditText
 
     private val watcher = object : SimpleTextWatcher() {
@@ -31,55 +21,33 @@ class NumbersFragment : Fragment() {
         }
     }
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        showFragment = context as ShowFragment
-    }
+    override fun viewModelClass() = NumbersViewModel.Base::class.java
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        viewModel = (requireActivity() as ProvideViewModel).provideViewModel(
-            NumbersViewModel::class.java,
-            this
-        )
-    }
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_numbers, container, false)
+    override fun inflate(inflater: LayoutInflater, parent: ViewGroup?): FragmentNumbersBinding {
+        return FragmentNumbersBinding.inflate(inflater, parent, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val progressBar = view.findViewById<ProgressBar>(R.id.progressBar)
-        val factButton = view.findViewById<Button>(R.id.factButton)
-        val randomButton = view.findViewById<Button>(R.id.randomFactButton)
-        val inputLayout = view.findViewById<TextInputLayout>(R.id.textInputLayout)
-        inputEditText = view.findViewById(R.id.inputEditText)
-        val recyclerView = view.findViewById<RecyclerView>(R.id.historyRecyclerView)
+        inputEditText = binding.inputEditText
 
         val adapter = NumbersAdapter(
             object : ClickListener {
-                override fun click(item: NumberUi) {
-                    showFragment.show(DetailsFragment.newInstance(item.map(mapper = DetailsUi)))
-                }
+                override fun click(item: NumberUi) = viewModel.showDetails(item)
             }
         )
-        recyclerView.adapter = adapter
+        binding.historyRecyclerView.adapter = adapter
 
-        factButton.setOnClickListener {
+        binding.factButton.setOnClickListener {
             viewModel.fetchNumberFact(inputEditText.text.toString())
         }
 
-        randomButton.setOnClickListener {
+        binding.randomFactButton.setOnClickListener {
             viewModel.fetchRandomNumberFact()
         }
 
         viewModel.observeNumbersState(this) {
-            it.apply(inputLayout, inputEditText)
+            it.apply(binding.textInputLayout, inputEditText)
         }
 
         viewModel.observeNumbersList(this) {
@@ -87,7 +55,7 @@ class NumbersFragment : Fragment() {
         }
 
         viewModel.observeProgress(this) {
-            progressBar.visibility = it
+            binding.progressBar.visibility = it
         }
 
         viewModel.init(savedInstanceState == null)
@@ -101,11 +69,6 @@ class NumbersFragment : Fragment() {
     override fun onPause() {
         super.onPause()
         inputEditText.removeTextChangedListener(watcher)
-    }
-
-    override fun onDetach() {
-        super.onDetach()
-        showFragment = ShowFragment.Empty()
     }
 }
 

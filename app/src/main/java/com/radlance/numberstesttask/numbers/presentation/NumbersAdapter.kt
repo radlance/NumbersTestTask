@@ -3,10 +3,10 @@ package com.radlance.numberstesttask.numbers.presentation
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.radlance.numberstesttask.R
+import com.radlance.numberstesttask.databinding.NumberLayoutBinding
 
 class NumbersAdapter(
     private val clickListener: ClickListener
@@ -42,12 +42,10 @@ class NumberViewHolder(
     view: View,
     private val clickListener: ClickListener
 ) : RecyclerView.ViewHolder(view) {
-
-    private val title = itemView.findViewById<TextView>(R.id.titleTextView)
-    private val subTitle = itemView.findViewById<TextView>(R.id.subTitleTextView)
+    private val binding = NumberLayoutBinding.bind(view)
 
     fun bind(model: NumberUi) {
-        model.map(ListItemUi(title, subTitle))
+        model.map(ListItemUi(binding.titleTextView, binding.subTitleTextView))
         itemView.setOnClickListener { clickListener.click(model) }
     }
 }

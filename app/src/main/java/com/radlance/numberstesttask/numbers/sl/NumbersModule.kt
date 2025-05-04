@@ -13,6 +13,7 @@ import com.radlance.numberstesttask.numbers.data.cloud.NumbersService
 import com.radlance.numberstesttask.numbers.domain.HandleError
 import com.radlance.numberstesttask.numbers.domain.HandleRequest
 import com.radlance.numberstesttask.numbers.domain.NumbersInteractor
+import com.radlance.numberstesttask.numbers.presentation.DetailsUi
 import com.radlance.numberstesttask.numbers.presentation.HandleNumbersRequest
 import com.radlance.numberstesttask.numbers.presentation.NumberUiMapper
 import com.radlance.numberstesttask.numbers.presentation.NumbersCommunications
@@ -22,9 +23,9 @@ import com.radlance.numberstesttask.numbers.presentation.NumbersStateCommunicati
 import com.radlance.numberstesttask.numbers.presentation.NumbersViewModel
 import com.radlance.numberstesttask.numbers.presentation.ProgressCommunication
 
-class NumbersModule(private val core: Core) : Module<NumbersViewModel> {
+class NumbersModule(private val core: Core) : Module<NumbersViewModel.Base> {
 
-    override fun viewModel(): NumbersViewModel {
+    override fun viewModel(): NumbersViewModel.Base {
         val communications = NumbersCommunications.Base(
             progress = ProgressCommunication.Base(),
             numbersState = NumbersStateCommunications.Base(),
@@ -48,7 +49,7 @@ class NumbersModule(private val core: Core) : Module<NumbersViewModel> {
             mapperToDomain = mapperToDomain
         )
 
-        return NumbersViewModel(
+        return NumbersViewModel.Base(
             handleResult = HandleNumbersRequest.Base(
                 dispatchers = core.provideDispatchers(),
                 communications = communications,
@@ -64,8 +65,11 @@ class NumbersModule(private val core: Core) : Module<NumbersViewModel> {
                 handleRequest = HandleRequest.Base(
                     handleError = HandleError.Base(core),
                     repository = numbersRepository
-                )
-            )
+                ),
+                numberFactDetails = core.provideNumberDetails()
+            ),
+            navigationCommunication = core.provideNavigation(),
+            detailMapper = DetailsUi
         )
     }
 }

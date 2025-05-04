@@ -1,6 +1,7 @@
 package com.radlance.numberstesttask.numbers.domain
 
 import com.radlance.numberstesttask.common.BaseTest
+import com.radlance.numberstesttask.details.data.NumberFactDetails
 import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
@@ -17,7 +18,8 @@ class NumbersInteractorTest : BaseTest() {
         repository = TestNumbersRepository()
         interactor = NumbersInteractor.Base(
             repository = repository,
-            handleRequest = HandleRequest.Base(HandleError.Base(manageResources), repository)
+            handleRequest = HandleRequest.Base(HandleError.Base(manageResources), repository),
+            numberFactDetails = NumberFactDetails.Base()
         )
     }
 
