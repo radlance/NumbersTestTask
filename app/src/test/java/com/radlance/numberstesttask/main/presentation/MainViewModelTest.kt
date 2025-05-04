@@ -2,7 +2,6 @@ package com.radlance.numberstesttask.main.presentation
 
 import com.radlance.numberstesttask.common.BaseTest
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class MainViewModelTest : BaseTest() {
@@ -14,7 +13,7 @@ class MainViewModelTest : BaseTest() {
         mainViewModel.init(isFirstRun = true)
 
         assertEquals(1, navigation.count)
-        assertTrue(navigation.strategy is NavigationStrategy.Replace)
+        assertEquals(NavigationStrategy.Replace(Screen.Numbers), navigation.strategy)
 
         mainViewModel.init(isFirstRun = false)
         assertEquals(1, navigation.count)

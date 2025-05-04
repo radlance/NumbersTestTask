@@ -4,6 +4,7 @@ import android.view.View
 import com.radlance.numberstesttask.common.BaseTest
 import com.radlance.numberstesttask.common.MainDispatcherRule
 import com.radlance.numberstesttask.main.presentation.NavigationStrategy
+import com.radlance.numberstesttask.main.presentation.Screen
 import com.radlance.numberstesttask.numbers.domain.NumberFact
 import com.radlance.numberstesttask.numbers.domain.NumbersInteractor
 import com.radlance.numberstesttask.numbers.domain.NumbersResult
@@ -205,7 +206,7 @@ class NumbersViewModelTest : BaseTest() {
         viewModel.showDetails(NumberUi(id = "0", fact = "fact about 0"))
         assertEquals("0 fact about 0", interactor.details)
         assertEquals(1, navigation.count)
-        assertTrue(navigation.strategy is NavigationStrategy.Add)
+        assertEquals(NavigationStrategy.Add(Screen.Details), navigation.strategy)
     }
 
     private class TestDispatchers : CoroutineDispatchers {
