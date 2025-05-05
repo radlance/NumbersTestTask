@@ -1,8 +1,6 @@
-package com.radlance.numberstesttask.numbers.data
+package com.radlance.numberstesttask.numbers.data.cache
 
-import com.radlance.numberstesttask.numbers.data.cache.NumberCache
-import com.radlance.numberstesttask.numbers.data.cache.NumbersCacheDataSource
-import com.radlance.numberstesttask.numbers.data.cache.NumbersDao
+import com.radlance.numberstesttask.numbers.data.NumberData
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse

@@ -38,7 +38,8 @@ class NumbersModule(private val core: Core) : Module<NumbersViewModel.Base> {
         val mapperToDomain = NumberDataToDomain()
         val numbersRepository = BaseNumbersRepository(
             NumbersCloudDataSource.Base(
-                service = core.service(NumbersService::class.java)
+                service = core.service(NumbersService::class.java),
+                randomApiHeader = core.provideRandomApiHeader()
             ),
             cacheDataSource = cacheDataSource,
             handleDataRequest = HandleDataRequest.Base(

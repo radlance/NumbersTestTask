@@ -6,11 +6,12 @@ import com.radlance.numberstesttask.main.presentation.NavigationCommunication
 import com.radlance.numberstesttask.numbers.data.cache.CacheModule
 import com.radlance.numberstesttask.numbers.data.cache.NumbersDatabase
 import com.radlance.numberstesttask.numbers.data.cloud.CloudModule
+import com.radlance.numberstesttask.numbers.data.cloud.RandomApiHeader
 import com.radlance.numberstesttask.numbers.presentation.CoroutineDispatchers
 import com.radlance.numberstesttask.numbers.presentation.ManageResources
 
 interface Core : CloudModule, CacheModule, ManageResources, ProvideNavigation,
-    ProvideNumberDetails {
+    ProvideNumberDetails, ProvideRandomApiHeader {
 
     fun provideDispatchers(): CoroutineDispatchers
 
@@ -31,6 +32,8 @@ interface Core : CloudModule, CacheModule, ManageResources, ProvideNavigation,
 
         private val numberFactDetails = NumberFactDetails.Base()
 
+        private val randomNumberApiHeader = provideInstances.provideRandomApiHeader()
+
         override fun <T : Any> service(clazz: Class<T>): T = cloudModule.service(clazz)
 
         override fun provideDatabase(): NumbersDatabase = cacheModule.provideDatabase()
@@ -40,6 +43,8 @@ interface Core : CloudModule, CacheModule, ManageResources, ProvideNavigation,
         override fun provideNavigation(): NavigationCommunication.Mutable = navigationCommunication
 
         override fun provideNumberDetails(): NumberFactDetails.Mutable = numberFactDetails
+
+        override fun provideRandomApiHeader(): RandomApiHeader.Combo = randomNumberApiHeader
 
         override fun provideDispatchers(): CoroutineDispatchers = dispatchers
     }

@@ -9,11 +9,9 @@ interface CloudModule {
 
     fun <T : Any> service(clazz: Class<T>): T
 
-    class Mock : CloudModule {
+    class Mock(private val randomApiHeader: RandomApiHeader.MockResponse) : CloudModule {
         @Suppress("UNCHECKED_CAST")
-        override fun <T : Any> service(clazz: Class<T>): T {
-            return MockNumbersService() as T
-        }
+        override fun <T: Any> service(clazz: Class<T>): T = MockNumbersService(randomApiHeader) as T
     }
 
 
