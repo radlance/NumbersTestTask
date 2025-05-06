@@ -9,9 +9,10 @@ import com.radlance.numberstesttask.numbers.data.cloud.CloudModule
 import com.radlance.numberstesttask.numbers.data.cloud.RandomApiHeader
 import com.radlance.numberstesttask.numbers.presentation.CoroutineDispatchers
 import com.radlance.numberstesttask.numbers.presentation.ManageResources
+import com.radlance.numberstesttask.random.WorkManagerWrapper
 
 interface Core : CloudModule, CacheModule, ManageResources, ProvideNavigation,
-    ProvideNumberDetails, ProvideRandomApiHeader {
+    ProvideNumberDetails, ProvideRandomApiHeader, ProvideWorkManagerWrapper {
 
     fun provideDispatchers(): CoroutineDispatchers
 
@@ -34,6 +35,8 @@ interface Core : CloudModule, CacheModule, ManageResources, ProvideNavigation,
 
         private val randomNumberApiHeader = provideInstances.provideRandomApiHeader()
 
+        private val workManagerWrapper = WorkManagerWrapper.Base(context)
+
         override fun <T : Any> service(clazz: Class<T>): T = cloudModule.service(clazz)
 
         override fun provideDatabase(): NumbersDatabase = cacheModule.provideDatabase()
@@ -46,8 +49,14 @@ interface Core : CloudModule, CacheModule, ManageResources, ProvideNavigation,
 
         override fun provideRandomApiHeader(): RandomApiHeader.Combo = randomNumberApiHeader
 
+        override fun provideWorkManagerWrapper(): WorkManagerWrapper = workManagerWrapper
+
         override fun provideDispatchers(): CoroutineDispatchers = dispatchers
     }
+}
+
+interface ProvideWorkManagerWrapper {
+    fun provideWorkManagerWrapper(): WorkManagerWrapper
 }
 
 interface ProvideNavigation {

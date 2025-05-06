@@ -13,6 +13,7 @@ import com.radlance.numberstesttask.numbers.data.cloud.NumbersService
 import com.radlance.numberstesttask.numbers.domain.HandleError
 import com.radlance.numberstesttask.numbers.domain.HandleRequest
 import com.radlance.numberstesttask.numbers.domain.NumbersInteractor
+import com.radlance.numberstesttask.numbers.domain.NumbersRepository
 import com.radlance.numberstesttask.numbers.presentation.DetailsUi
 import com.radlance.numberstesttask.numbers.presentation.HandleNumbersRequest
 import com.radlance.numberstesttask.numbers.presentation.NumberUiMapper
@@ -23,7 +24,10 @@ import com.radlance.numberstesttask.numbers.presentation.NumbersStateCommunicati
 import com.radlance.numberstesttask.numbers.presentation.NumbersViewModel
 import com.radlance.numberstesttask.numbers.presentation.ProgressCommunication
 
-class NumbersModule(private val core: Core) : Module<NumbersViewModel.Base> {
+class NumbersModule(
+    private val core: Core,
+    private val provideNumbersRepository: ProvideNumbersRepository
+) : Module<NumbersViewModel.Base> {
 
     override fun viewModel(): NumbersViewModel.Base {
         val communications = NumbersCommunications.Base(
@@ -31,24 +35,7 @@ class NumbersModule(private val core: Core) : Module<NumbersViewModel.Base> {
             numbersState = NumbersStateCommunications.Base(),
             numbersList = NumbersListCommunications.Base()
         )
-        val cacheDataSource = NumbersCacheDataSource.Base(
-            dao = core.provideDatabase().numbersDao(),
-            dataToCache = NumberDataToCache()
-        )
-        val mapperToDomain = NumberDataToDomain()
-        val numbersRepository = BaseNumbersRepository(
-            NumbersCloudDataSource.Base(
-                service = core.service(NumbersService::class.java),
-                randomApiHeader = core.provideRandomApiHeader()
-            ),
-            cacheDataSource = cacheDataSource,
-            handleDataRequest = HandleDataRequest.Base(
-                cacheDataSource = cacheDataSource,
-                handleError = HandleDomainError(),
-                mapperToDomain = mapperToDomain
-            ),
-            mapperToDomain = mapperToDomain
-        )
+
 
         return NumbersViewModel.Base(
             handleResult = HandleNumbersRequest.Base(
@@ -62,15 +49,43 @@ class NumbersModule(private val core: Core) : Module<NumbersViewModel.Base> {
             manageResources = core,
             communications = communications,
             interactor = NumbersInteractor.Base(
-                repository = numbersRepository,
+                repository = provideNumbersRepository.provideNumbersRepository(),
                 handleRequest = HandleRequest.Base(
                     handleError = HandleError.Base(core),
-                    repository = numbersRepository
+                    repository = provideNumbersRepository.provideNumbersRepository()
                 ),
                 numberFactDetails = core.provideNumberDetails()
             ),
             navigationCommunication = core.provideNavigation(),
             detailMapper = DetailsUi
         )
+    }
+}
+
+interface ProvideNumbersRepository {
+    fun provideNumbersRepository() : NumbersRepository
+
+    class Base(private val core: Core) : ProvideNumbersRepository {
+        override fun provideNumbersRepository(): NumbersRepository {
+            val cacheDataSource = NumbersCacheDataSource.Base(
+                dao = core.provideDatabase().numbersDao(),
+                dataToCache = NumberDataToCache()
+            )
+            val mapperToDomain = NumberDataToDomain()
+            return BaseNumbersRepository(
+                NumbersCloudDataSource.Base(
+                    service = core.service(NumbersService::class.java),
+                    randomApiHeader = core.provideRandomApiHeader()
+                ),
+                cacheDataSource = cacheDataSource,
+                handleDataRequest = HandleDataRequest.Base(
+                    cacheDataSource = cacheDataSource,
+                    handleError = HandleDomainError(),
+                    mapperToDomain = mapperToDomain
+                ),
+                mapperToDomain = mapperToDomain
+            )
+        }
+
     }
 }

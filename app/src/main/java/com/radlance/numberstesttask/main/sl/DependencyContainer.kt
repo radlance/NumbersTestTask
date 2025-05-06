@@ -4,8 +4,10 @@ import androidx.lifecycle.ViewModel
 import com.radlance.numberstesttask.details.presentation.NumberDetailsViewModel
 import com.radlance.numberstesttask.details.sl.NumberDetailsModule
 import com.radlance.numberstesttask.main.presentation.MainViewModel
+import com.radlance.numberstesttask.numbers.domain.NumbersRepository
 import com.radlance.numberstesttask.numbers.presentation.NumbersViewModel
 import com.radlance.numberstesttask.numbers.sl.NumbersModule
+import com.radlance.numberstesttask.numbers.sl.ProvideNumbersRepository
 
 interface DependencyContainer {
 
@@ -20,12 +22,19 @@ interface DependencyContainer {
     class Base(
         private val core: Core,
         private val dependencyContainer: DependencyContainer = Error()
-    ) : DependencyContainer {
+    ) : DependencyContainer, ProvideNumbersRepository {
+
+        private val repository by lazy {
+            ProvideNumbersRepository.Base(core).provideNumbersRepository()
+        }
+
         override fun <T : ViewModel> module(clazz: Class<T>): Module<*> = when (clazz) {
             MainViewModel::class.java -> MainModule(core)
-            NumbersViewModel.Base::class.java -> NumbersModule(core)
+            NumbersViewModel.Base::class.java -> NumbersModule(core, this)
             NumberDetailsViewModel::class.java -> NumberDetailsModule(core)
             else -> dependencyContainer.module(clazz)
         }
+
+        override fun provideNumbersRepository(): NumbersRepository = repository
     }
 }
