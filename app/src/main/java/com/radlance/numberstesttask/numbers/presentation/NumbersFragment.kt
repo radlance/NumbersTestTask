@@ -6,13 +6,12 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.google.android.material.textfield.TextInputEditText
 import com.radlance.numberstesttask.databinding.FragmentNumbersBinding
 import com.radlance.numberstesttask.main.presentation.BaseFragment
 
 class NumbersFragment : BaseFragment<FragmentNumbersBinding, NumbersViewModel.Base>() {
 
-    private lateinit var inputEditText: TextInputEditText
+    private lateinit var inputEditText: BaseCustomTextInputEditText
 
     private val watcher = object : SimpleTextWatcher() {
         override fun afterTextChanged(s: Editable?) {

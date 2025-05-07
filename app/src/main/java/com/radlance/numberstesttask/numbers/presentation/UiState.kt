@@ -1,17 +1,14 @@
 package com.radlance.numberstesttask.numbers.presentation
 
-import com.google.android.material.textfield.TextInputEditText
-import com.google.android.material.textfield.TextInputLayout
-
 interface UiState {
 
-    fun apply(inputLayout: TextInputLayout, textInputEditText: TextInputEditText)
+    fun apply(inputLayout: CustomTextInputLayout, textInputEditText: CustomTextInputEditText)
 
     object Success : UiState {
         override fun apply(
-            inputLayout: TextInputLayout,
-            textInputEditText: TextInputEditText
-        ) = textInputEditText.setText("")
+            inputLayout: CustomTextInputLayout,
+            textInputEditText: CustomTextInputEditText
+        ) = textInputEditText.showText("")
     }
 
     abstract class AbstractError(
@@ -19,11 +16,11 @@ interface UiState {
         private var errorEnabled: Boolean
     ): UiState {
         override fun apply(
-            inputLayout: TextInputLayout,
-            textInputEditText: TextInputEditText
+            inputLayout: CustomTextInputLayout,
+            textInputEditText: CustomTextInputEditText
         ) = with(inputLayout) {
-            isErrorEnabled = errorEnabled
-            error = message
+            changeErrorEnabled(errorEnabled)
+            showError(message)
         }
     }
     data class ShowError(private val message: String) : AbstractError(message = message, errorEnabled = true)

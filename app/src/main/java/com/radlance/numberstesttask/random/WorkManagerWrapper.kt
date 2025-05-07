@@ -19,6 +19,9 @@ interface WorkManagerWrapper {
             val request = PeriodicWorkRequestBuilder<PeriodicRandomWorker>(
                 repeatInterval = 15,
                 repeatIntervalTimeUnit = TimeUnit.MINUTES
+            ).setInitialDelay(
+                duration = 15,
+                timeUnit = TimeUnit.MINUTES
             ).setConstraints(
                 Constraints(
                     requiresBatteryNotLow = true,
