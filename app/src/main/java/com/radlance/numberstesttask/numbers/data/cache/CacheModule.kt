@@ -26,6 +26,5 @@ interface CacheModule {
         }
 
         override fun provideDatabase(): NumbersDatabase = database
-
     }
 }

@@ -2,27 +2,24 @@ package com.radlance.numberstesttask.numbers.presentation
 
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.radlance.numberstesttask.R
+import com.radlance.numberstesttask.main.presentation.BaseViewModel
 import com.radlance.numberstesttask.main.presentation.Init
 import com.radlance.numberstesttask.main.presentation.NavigationCommunication
 import com.radlance.numberstesttask.main.presentation.NavigationStrategy
 import com.radlance.numberstesttask.main.presentation.Screen
-import com.radlance.numberstesttask.numbers.domain.NumbersInteractor
+import com.radlance.numberstesttask.main.presentation.UiFeature
+import com.radlance.numberstesttask.numbers.domain.NumberDetailsUseCase
 
-interface NumbersViewModel : ObserveNumbers, FetchNumbers, ClearError, Init {
-
-    fun showDetails(item: NumberUi)
+interface NumbersViewModel : ObserveNumbers, FetchNumbers, ClearError, Init, ShowDetails {
 
     class Base(
-        private val handleResult: HandleNumbersRequest,
-        private val manageResources: ManageResources,
-        private val communications: NumbersCommunications,
-        private val interactor: NumbersInteractor,
-        private val navigationCommunication: NavigationCommunication.Mutate,
-        private val detailMapper: NumberUi.Mapper<String>
-    ) : ViewModel(), NumbersViewModel {
+        coroutineDispatchers: CoroutineDispatchers,
+        private val initial: UiFeature,
+        private val numberFact: NumbersFactFeature,
+        private val randomFact: UiFeature,
+        private val showDetails: ShowDetails,
+        private val communications: NumbersCommunications
+    ) : BaseViewModel(coroutineDispatchers), NumbersViewModel {
 
         override fun observeProgress(owner: LifecycleOwner, observer: Observer<Int>) {
             communications.observeProgress(owner, observer)
@@ -37,28 +34,35 @@ interface NumbersViewModel : ObserveNumbers, FetchNumbers, ClearError, Init {
         }
 
         override fun init(isFirstRun: Boolean) {
-            if (isFirstRun) {
-                handleResult.handle(viewModelScope) { interactor.init() }
-            }
+            if (isFirstRun) initial.handle(this)
         }
 
         override fun fetchRandomNumberFact() {
-            handleResult.handle(viewModelScope) { interactor.factAboutRandomNumber() }
+            randomFact.handle(this)
         }
 
         override fun fetchNumberFact(number: String) {
-            if (number.isEmpty()) {
-                communications.showState(UiState.ShowError(manageResources.string(R.string.empty_number_error_message)))
-            } else {
-                handleResult.handle(viewModelScope) { interactor.factAboutNumber(number) }
-            }
+           numberFact.number(number).handle(this)
         }
 
         override fun clearError() = communications.showState(UiState.ClearError)
 
+        override fun showDetails(item: NumberUi) = showDetails.showDetails(item)
+    }
+}
+
+interface ShowDetails {
+
+    fun showDetails(item: NumberUi)
+
+    class Base(
+        private val communications: NavigationCommunication.Mutate,
+        private val mapper: NumberUi.Mapper<String>,
+        private val useCase: NumberDetailsUseCase
+    ) : ShowDetails {
         override fun showDetails(item: NumberUi) {
-            interactor.saveDetails(item.map(detailMapper))
-            navigationCommunication.map(
+            useCase.saveDetails(item.map(mapper))
+            communications.map(
                 NavigationStrategy.Add(Screen.Details)
             )
         }

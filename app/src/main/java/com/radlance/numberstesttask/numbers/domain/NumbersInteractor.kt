@@ -2,15 +2,11 @@ package com.radlance.numberstesttask.numbers.domain
 
 import com.radlance.numberstesttask.details.data.NumberFactDetails
 
-interface NumbersInteractor {
-
-    suspend fun init(): NumbersResult
-
-    suspend fun factAboutNumber(number: String): NumbersResult
-
-    suspend fun factAboutRandomNumber(): NumbersResult
-
-    fun saveDetails(details: String)
+interface NumbersInteractor :
+    NumbersInitialUseCase,
+    NumbersFactUseCase,
+    RandomNumbersUseCase,
+    NumberDetailsUseCase {
 
     class Base(
         private val repository: NumbersRepository,
@@ -33,4 +29,24 @@ interface NumbersInteractor {
             numberFactDetails.save(details)
         }
     }
+}
+
+interface NumbersInitialUseCase {
+
+    suspend fun init(): NumbersResult
+}
+
+interface NumbersFactUseCase {
+
+    suspend fun factAboutNumber(number: String): NumbersResult
+}
+
+interface RandomNumbersUseCase {
+
+    suspend fun factAboutRandomNumber(): NumbersResult
+}
+
+interface NumberDetailsUseCase {
+
+    fun saveDetails(details: String)
 }

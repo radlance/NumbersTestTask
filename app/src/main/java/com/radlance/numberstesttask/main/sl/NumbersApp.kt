@@ -16,7 +16,7 @@ class NumbersApp : Application(), ProvideViewModel, ProvidePeriodicRepository {
     override fun onCreate() {
         super.onCreate()
 
-        val provideInstances = if (!BuildConfig.DEBUG) {
+        val provideInstances = if (BuildConfig.DEBUG) {
             ProvideInstances.Mock(this)
         } else {
             ProvideInstances.Release(this)

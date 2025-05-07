@@ -42,16 +42,29 @@ class NumbersViewModelTest : BaseTest() {
         navigation = TestNavigationCommunication()
 
         viewModel = NumbersViewModel.Base(
-            manageResources = manageResources,
-            communications = communications,
-            interactor = interactor,
-            handleResult = HandleNumbersRequest.Base(
-                dispatchers = TestDispatchers(),
+            coroutineDispatchers = TestDispatchers(),
+            initial = NumbersInitialFeature(
                 communications = communications,
-                mapper = mapper
+                mapper = mapper,
+                useCase = interactor,
             ),
-            navigationCommunication = navigation,
-            detailMapper = detailMapper
+            numberFact = NumbersFactFeature.Base(
+                mapper = mapper,
+                communications = communications,
+                manageResources = manageResources,
+                useCase = interactor
+            ),
+            randomFact = RandomNumberFactFeature(
+                communications = communications,
+                mapper = mapper,
+                useCase = interactor
+            ),
+            showDetails = ShowDetails.Base(
+                communications = navigation,
+                mapper = detailMapper,
+                useCase = interactor
+            ),
+            communications = communications
         )
     }
     /**
@@ -108,13 +121,14 @@ class NumbersViewModelTest : BaseTest() {
      * Try to get information about empty number
      */
     @Test
-    fun `fact about empty number`() {
+    fun `fact about empty number`() = runTest {
         manageResources.makeExpectedAnswer("entered number is empty")
         viewModel.fetchNumberFact("")
 
         assertEquals(0, interactor.fetchAboutNumberCalledList.size)
         assertEquals(0, communications.progressCalledList.size)
 
+        advanceUntilIdle()
         assertEquals(UiState.ShowError("entered number is empty"), communications.stateCalledList[0])
         assertEquals(1, communications.stateCalledList.size)
 
@@ -139,7 +153,6 @@ class NumbersViewModelTest : BaseTest() {
         )
 
         viewModel.fetchNumberFact("45")
-
 
         assertEquals(1, communications.progressCalledList.size)
         assertEquals(View.VISIBLE, communications.progressCalledList[0])
